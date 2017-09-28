@@ -1758,27 +1758,19 @@ UniValue listtransactions2(const JSONRPCRequest& request)
     if (nStart < 0)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Negative start");
 
-    // TBFIX
-    // Array ret;
     UniValue ret(UniValue::VARR);
 
-    // TBFIX
-    // CWallet::TxItems txOrdered = pwalletMain->OrderedTxItems(acentries, strAccount);
-    // std::list<CAccountingEntry> acentries;
     const CWallet::TxItems & txOrdered = pwallet->wtxOrdered;
+
     // iterate backwards until we have nCount items to return:
-    // TBFIX
-    // CWallet::TxItems::iterator it = txOrdered.begin();
     CWallet::TxItems::const_iterator it = txOrdered.begin();
-    // TBFIX
-    // if(txOrdered.size() > nStart) {
+
     if( (int)txOrdered.size() > nStart) {
         std::advance(it, nStart);
         for (; it != txOrdered.end(); ++it)
         {
             CWalletTx *const pwtx = (*it).second.first;
             if (pwtx != 0)
-//              ListTransactions(*pwtx, strAccount, 0, true, ret, filter);
                 ListTransactions(pwallet, *pwtx, strAccount, 0, true, ret, filter);
             CAccountingEntry *const pacentry = (*it).second.second;
             if (pacentry != 0)
@@ -1788,16 +1780,6 @@ UniValue listtransactions2(const JSONRPCRequest& request)
         }
     }
 
-    // TBFIX
-    // now we make sure to return only the last nCount items (sends-to-self might give us an extra)
-    /*
-    if ((int)ret.size() > nCount) {
-        // Array::iterator last = ret.begin();
-        int foo = ret.begin();
-        std::advance(last, nCount);
-        ret.erase(last, ret.end());
-    }
-    */
     std::vector<UniValue> arrTmp = ret.getValues();
     if ((int)ret.size() > nCount) {
         std::vector<UniValue>::iterator last = arrTmp.begin();
