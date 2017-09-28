@@ -1687,7 +1687,7 @@ UniValue listtransactions2(const JSONRPCRequest& request)
     if (request.fHelp || request.params.size() > 4)
         throw std::runtime_error(
             "listtransactions2 ( \"account\" count from includeWatchonly)\n"
-            "\nReturns up to 'count' most recent transactions skipping the first 'from' transactions for account 'account'.\n"
+            "\nReturns up to 'count' transactions skipping the first 'from' transactions for account 'account'. Transactions are in ascending order.\n"
             "\nArguments:\n"
             "1. \"account\"    (string, optional) The account name. If not included, it will list all transactions for all accounts.\n"
             "                                     If \"\" is set, it will list transactions for the default account.\n"
