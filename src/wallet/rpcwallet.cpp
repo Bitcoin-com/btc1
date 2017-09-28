@@ -1680,8 +1680,12 @@ UniValue listtransactions(const JSONRPCRequest& request)
 
 UniValue listtransactions2(const JSONRPCRequest& request)
 {
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
     if (request.fHelp || request.params.size() > 4)
-        throw runtime_error(
+        throw std::runtime_error(
             "listtransactions2 ( \"account\" count from includeWatchonly)\n"
             "\nReturns up to 'count' most recent transactions skipping the first 'from' transactions for account 'account'.\n"
             "\nArguments:\n"
@@ -1735,7 +1739,7 @@ UniValue listtransactions2(const JSONRPCRequest& request)
             + HelpExampleRpc("listtransactions", "\"tabby\", 20, 100")
         );
 
-    string strAccount = "*";
+    std::string strAccount = "*";
     if (request.params.size() > 0)
         strAccount = request.params[0].get_str();
     int nCount = 10;
@@ -1761,8 +1765,7 @@ UniValue listtransactions2(const JSONRPCRequest& request)
     // TBFIX
     // CWallet::TxItems txOrdered = pwalletMain->OrderedTxItems(acentries, strAccount);
     // std::list<CAccountingEntry> acentries;
-    const CWallet::TxItems & txOrdered = pwalletMain->wtxOrdered;
-
+    const CWallet::TxItems & txOrdered = pwallet->wtxOrdered;
     // iterate backwards until we have nCount items to return:
     // TBFIX
     // CWallet::TxItems::iterator it = txOrdered.begin();
@@ -1775,7 +1778,8 @@ UniValue listtransactions2(const JSONRPCRequest& request)
         {
             CWalletTx *const pwtx = (*it).second.first;
             if (pwtx != 0)
-                ListTransactions(*pwtx, strAccount, 0, true, ret, filter);
+//              ListTransactions(*pwtx, strAccount, 0, true, ret, filter);
+                ListTransactions(pwallet, *pwtx, strAccount, 0, true, ret, filter);
             CAccountingEntry *const pacentry = (*it).second.second;
             if (pacentry != 0)
                 AcentryToJSON(*pacentry, strAccount, ret);
@@ -1794,9 +1798,9 @@ UniValue listtransactions2(const JSONRPCRequest& request)
         ret.erase(last, ret.end());
     }
     */
-    vector<UniValue> arrTmp = ret.getValues();
+    std::vector<UniValue> arrTmp = ret.getValues();
     if ((int)ret.size() > nCount) {
-        vector<UniValue>::iterator last = arrTmp.begin();
+        std::vector<UniValue>::iterator last = arrTmp.begin();
         std::advance(last, nCount);
         arrTmp.erase(last, arrTmp.end());
     }
